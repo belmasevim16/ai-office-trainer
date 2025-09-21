@@ -109,7 +109,7 @@ const BIAS_DATA = {
                     experience: "strong"
                 },
                 {
-                    name: "Al Dente",
+                    name: "Mike Comfybottom",
                     description: "Man who is a native English Spear • Ivy League graduate • Native English speaker • Same track record but confident in self-presentation",
                     image: "youngman.png",
                     location: "big-city", 
@@ -118,7 +118,7 @@ const BIAS_DATA = {
             ],
             aiChoice: 1, // Dakota (multiple advantages)
             biasType: "Algorithmic Amplification",
-            explanation: "The AI picked Al because multiple small biases combined into a large advantage. Even when individual biases seem minor, they can amplify each other to create significant unfairness - this is algorithmic bias amplification.",
+            explanation: "The AI picked Mike because multiple small biases combined into a large advantage. Even when individual biases seem minor, they can amplify each other to create significant unfairness - this is algorithmic bias amplification.",
             hint: "This is tricky! The AI considers many factors at once. Think about how multiple small biases might add up to create a big advantage for one type of person."
         }
     ],
