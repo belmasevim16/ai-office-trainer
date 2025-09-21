@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Office Trainer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="gameContainer">
+        
+        <!-- Phone Intro Screen -->
+        <div id="phoneIntro" class="screen active">
+            <div class="phone-container">
+                <div class="phone">
+                    <div class="phone-screen">
+                        <div class="phone-header">
+                            <div class="time">9:41 AM</div>
+                            <div class="signal">📶 🔋</div>
+                        </div>
+                        
+                        <div class="chat-header">
+                            <div class="contact-info">
+                                <div class="avatar">👔</div>
+                                <div class="contact-name">Office Manager</div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Messages will appear here dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="intro-content">
+                    <h1 class="game-title">AI Office Trainer</h1>
+                    <p class="game-subtitle">Your new AI coworker needs some help!</p>
+                    
+                    <button id="startMessagesBtn" class="start-messages-btn">
+                        <span>Read Messages</span>
+                        <span>📱</span>
+                    </button>
+                    
+                    <button id="continueToExplanationBtn" class="continue-btn hidden">
+                        <span>Choose Your Department!</span>
+                        <span>🏢</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temperature Tutorial Screen -->
+        <div id="temperatureTutorial" class="screen">
+            <div class="tutorial-container">
+                <div class="tutorial-content">
+                    <div class="tutorial-cat-container">
+                       <img src="assets/images/cats/office-cat-awake.png" alt="Office Cat Teacher" class="tutorial-cat">
+                    </div>
+                    
+                    <div class="cat-tutorial">
+                        <div class="cat-speech-bubble" id="tutorialBubble">
+                            <div class="tutorial-step" id="step1">
+                                <h2>Hey there, intern! Let's learn about AI Temperature! 😸</h2>
+                                <p><em>Click anywhere to continue...</em></p>
+                            </div>
+                            
+                            <div class="tutorial-progress" id="tutorialProgress">
+                                <div class="progress-dots">
+                                    <!-- Progress dots will be added by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="startInternBtn" class="start-intern-btn hidden">
+                            <span>Let's Train This AI!</span>
+                            <span>🚀</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Selection -->
+        <div id="levelSelection" class="screen">
+            <div class="level-selection-container">
+                <div class="header-section">
+                    <h1>Choose Your Department</h1>
+                    <p>Which department needs your AI training expertise?</p>
+                </div>
+                
+                <div class="levels-grid">
+                    <div class="level-card available" id="level1Card">
+                        <div class="level-header">
+                            <div class="level-icon">☕</div>
+                            <div class="level-title">
+                                <h3>Intern</h3>
+                                <p class="level-subtitle">Customer Support Training</p>
+                            </div>
+                        </div>
+                        
+                        <div class="level-description">
+                            <p>Help different customers by finding the perfect AI temperature for each situation!</p>
+                        </div>
+                        
+                        <div class="concept-pills">
+                            <span class="pill orange">Temperature</span>
+                            <span class="pill orange-light">Hallucinations</span>
+                            <span class="pill orange-dark">Context</span>
+                        </div>
+                        
+                        <button class="level-btn orange-btn" onclick="startLevel(1)">
+                            <span>Start Training</span>
+                            <span class="arrow">→</span>
+                        </button>
+                    </div>
+                    
+                    <div class="level-card locked" id="level2Card">
+                        <div class="level-header">
+                            <div class="level-icon">💼</div>
+                            <div class="level-title">
+                                <h3>HR Department</h3>
+                                <p class="level-subtitle">Coming Soon</p>
+                            </div>
+                        </div>
+                        
+                        <div class="level-description">
+                            <p>Learn about AI bias and fair training data in hiring processes.</p>
+                        </div>
+                        
+                        <div class="concept-pills">
+                            <span class="pill pink">Bias Detection</span>
+                            <span class="pill pink-light">Fair Data</span>
+                        </div>
+                        
+                        <button class="level-btn locked-btn" disabled>
+                            <span class="lock-icon">🔒</span>
+                            <span>Complete Intern Level</span>
+                        </button>
+                    </div>
+                    
+                    <div class="level-card locked" id="level3Card">
+                        <div class="level-header">
+                            <div class="level-icon">👑</div>
+                            <div class="level-title">
+                                <h3>CEO</h3>
+                                <p class="level-subtitle">Coming Soon</p>
+                            </div>
+                        </div>
+                        
+                        <div class="level-description">
+                            <p>Set company-wide AI policies and human oversight protocols.</p>
+                        </div>
+                        
+                        <div class="concept-pills">
+                            <span class="pill blue">Human Oversight</span>
+                            <span class="pill blue-light">AI Governance</span>
+                        </div>
+                        
+                        <button class="level-btn locked-btn" disabled>
+                            <span class="lock-icon">🔒</span>
+                            <span>Complete Level 2</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Level Screen -->
+        <div id="gameLevel" class="screen">
+            <!-- Score Bar -->
+            <div class="score-bar">
+                <div class="score-progress">
+                    <div class="score-label">Score:</div>
+                    <div class="score-value" id="currentScore">0</div>
+                    <div class="score-target">/ 100</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <button id="backBtn" class="back-btn">← Back to Levels</button>
+            </div>
+            
+            <!-- Main Game Interface -->
+            <div class="game-interface">
+                <!-- Customer Message (Top Left) -->
+                <div class="customer-section">
+                    <div class="customer-bubble" id="customerMessage">
+                        <div class="customer-header">
+                            <div class="customer-avatar" id="customerAvatar">👤</div>
+                            <div class="customer-info">
+                                <div class="customer-name" id="customerName">Loading...</div>
+                                <div class="customer-type" id="customerType">Customer</div>
+                            </div>
+                        </div>
+                        <div class="message-content" id="customerMessageContent">
+                            Please wait while we load your first customer...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Office Cat (Bottom Left) -->
+                <div class="cat-section">
+                    <div class="office-cat-container" id="officeCat">
+                        <img src="assets/images/cats/office-cat-sleeping.png" alt="Office Cat" class="office-cat-image" id="catImage">
+                        <div class="cat-hint-box hidden" id="catHintBox">
+                            <div class="hint-content" id="hintContent">Click me for a hint!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Response Section (Bottom Right) -->
+                <div class="ai-section">
+                    <div class="ai-response-container">
+                        <div class="ai-header">
+                            <div class="ai-avatar">🤖</div>
+                            <div class="ai-info">
+                                <div class="ai-name">Customer Service AI</div>
+                                <div class="temperature-display">
+                                    Temperature: <span id="tempValue">0.7</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-response-content" id="aiResponse">
+                            Adjust the temperature and click "Send Response" to see how I'll help this customer!
+                        </div>
+                        
+                        <div class="temperature-controls">
+                            <div class="temp-slider-container">
+                                <input type="range" id="temperatureSlider" min="0.1" max="1.0" step="0.1" value="0.7" 
+                                       aria-label="AI Temperature Control">
+                                <div class="temp-labels">
+                                    <span>🤖 Robotic</span>
+                                    <span>🎨 Creative</span>
+                                </div>
+                            </div>
+                            
+                            <button id="submitResponseBtn" class="submit-btn">
+                                <span>Send Response</span>
+                                <span>📤</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Modal -->
+        <div id="feedbackModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="feedback-header">
+                    <img src="assets/images/cats/office-cat-excited.png" alt="Excited Office Cat" class="feedback-cat">
+                    <h3 id="feedbackTitle">Great job!</h3>
+                </div>
+                <div class="points-earned" id="pointsEarned">+25 points</div>
+                <div class="feedback-explanation" id="feedbackExplanation">
+                    Perfect temperature for this customer type!
+                </div>
+                <div class="cat-feedback" id="catFeedback">
+                    "Meow! You're getting the hang of this!"
+                </div>
+                <button id="nextCustomerBtn" class="next-btn">
+                    <span>Next Customer</span>
+                    <span>➡️</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/gameData.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
