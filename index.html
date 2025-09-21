@@ -187,7 +187,7 @@
                 <div class="customer-section">
                     <div class="customer-bubble" id="customerMessage">
                         <div class="customer-header">
-                            <div class="customer-avatar" id="customerAvatar">👤</div>
+                            <img src="" alt="Customer Avatar" class="customer-avatar" id="customerAvatar">
                             <div class="customer-info">
                                 <div class="customer-name" id="customerName">Loading...</div>
                                 <div class="customer-type" id="customerType">Customer</div>
@@ -269,7 +269,118 @@
 
     </div>
 
+    <div id="biasTutorial" class="screen">
+    <div class="tutorial-container bias-tutorial">
+        <div class="tutorial-content">
+            <div class="tutorial-cat-container">
+               <img src="assets/images/cats/office-cat-awake.png" alt="Office Cat Teacher" class="tutorial-cat">
+            </div>
+            
+            <div class="cat-tutorial">
+                <div class="cat-speech-bubble bias-bubble" id="biasTutorialBubble">
+                    <div class="tutorial-step">
+                        <h2>Welcome to the HR Department! Time to learn about AI Bias! 🎯</h2>
+                        <p><em>Click anywhere to continue...</em></p>
+                    </div>
+                    
+                    <div class="tutorial-progress">
+                        <div class="progress-dots">
+                            <!-- Progress dots will be added by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="startHRBtn" class="start-hr-btn hidden">
+                    <span>Start Bias Training!</span>
+                    <span>🕵️</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Bias Detection Level Screen -->
+<div id="biasLevel" class="screen">
+    <!-- Score Bar -->
+    <div class="score-bar">
+        <div class="score-progress">
+            <div class="score-label">Bias Score:</div>
+            <div class="score-value" id="currentBiasScore">0</div>
+            <div class="score-target">/ 5</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar bias-progress-bar" id="biasProgressBar" style="width: 0%"></div>
+            </div>
+        </div>
+        <button id="backBtn" class="back-btn">← Back to Levels</button>
+    </div>
+    
+    <!-- Main Bias Interface -->
+    <div class="bias-interface">
+        <!-- Round Info (Top) -->
+        <div class="bias-round-info">
+            <div class="round-header">
+                <h2 id="biasRoundTitle">Round Title</h2>
+                <div class="round-number" id="biasRoundNumber">Round 1 of 5</div>
+            </div>
+            <div class="scenario-description" id="biasScenario">
+                AI scenario description will appear here...
+            </div>
+        </div>
+
+        <!-- Candidates Section (Middle) -->
+        <div class="candidates-container">
+            <div class="candidate-card" id="candidate1">
+                <!-- Candidate 1 content will be populated by JavaScript -->
+            </div>
+            
+            <div class="vs-indicator">
+                <div class="vs-text">VS</div>
+                <div class="bias-hint">Which one did the AI pick?</div>
+            </div>
+            
+            <div class="candidate-card" id="candidate2">
+                <!-- Candidate 2 content will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Office Cat (Bottom) -->
+        <div class="bias-cat-section">
+            <div class="office-cat-container" id="officeCat">
+                <img src="assets/images/cats/office-cat-sleeping.png" alt="Office Cat" class="office-cat-image" id="catImage">
+                <div class="cat-hint-box hidden" id="catHintBox">
+                    <div class="hint-content" id="hintContent">Think about what biases the AI might have learned!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW: Bias Feedback Modal -->
+<div id="biasFeedbackModal" class="modal hidden">
+    <div class="modal-content bias-modal">
+        <div class="feedback-header">
+            <img src="assets/images/cats/office-cat-excited.png" alt="Excited Office Cat" class="feedback-cat">
+            <h3 id="biasFeedbackTitle">Correct!</h3>
+        </div>
+        <div class="bias-result" id="biasFeedbackResult">
+            You correctly identified the AI's choice!
+        </div>
+        <div class="bias-explanation" id="biasExplanation">
+            <h4>Training Data Bias</h4>
+            <p>The AI picked this candidate because of biased training data...</p>
+        </div>
+        <div class="cat-feedback" id="catBiasFeedback">
+            "Meow! You're getting good at spotting bias patterns!"
+        </div>
+        <button id="nextBiasBtn" class="next-btn pink-btn">
+            <span>Next Round</span>
+            <span>➡️</span>
+        </button>
+    </div>
+</div>
+
     <script src="js/gameData.js"></script>
     <script src="js/game.js"></script>
+    <script src="js/biasData.js"></script> 
 </body>
 </html>

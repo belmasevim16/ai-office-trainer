@@ -4,17 +4,21 @@ class GameState {
     constructor() {
         this.currentScreen = 'phoneIntro';
         this.currentCustomer = 0;
+        this.currentBiasRound = 0; // For Level 2
         this.score = 0;
+        this.biasScore = 0; // For Level 2
         this.attempt = 1;
         this.maxAttempts = 3;
         this.messagesShown = false;
         this.completedCustomers = [];
+        this.currentLevel = 1;
+        this.unlockedLevels = [1]; // Track which levels are unlocked
     }
 }
 
 let gameState = new GameState();
 
-// Tutorial steps for flowing explanation
+// Tutorial steps for flowing explanation (Level 1 - unchanged)
 const tutorialSteps = [
     {
         text: "Hey there, intern! Let's learn about AI Temperature! 😸",
@@ -66,7 +70,59 @@ const tutorialSteps = [
     }
 ];
 
-// Quiz questions for promotion
+// NEW: Tutorial steps for Level 2 - AI Bias
+const biasTutorialSteps = [
+    {
+        text: "Welcome to the HR Department! Time to learn about AI Bias! 🎯",
+        subtitle: "Click anywhere to continue..."
+    },
+    {
+        text: "AI systems can be biased, just like humans - but they're often harder to spot! 👀",
+        subtitle: "Today you'll learn to detect when AI makes unfair hiring decisions."
+    },
+    {
+        text: "Here's how it works: You'll see two equally qualified candidates... 👥",
+        subtitle: "Your job is to guess which one the biased AI picked!"
+    },
+    {
+        text: "Don't worry about who's actually 'better' - focus on spotting the bias pattern! 🕵️",
+        subtitle: "Remember: both candidates are equally qualified in each scenario."
+    },
+    {
+        text: "Let me teach you about the 5 main types of AI bias you'll encounter... 📚",
+        subtitle: "Understanding these patterns will help you become a bias detective!"
+    },
+    {
+        text: "Training Data Bias: When AI learns unfair patterns from biased historical data 📊",
+        subtitle: "Example: If most past hires were one gender, AI might favor that pattern."
+    },
+    {
+        text: "Proxy Bias: When AI uses indirect clues that correlate with protected traits 📍",
+        subtitle: "Example: Using zip code as a 'shortcut' that indirectly discriminates by income or race."
+    },
+    {
+        text: "Label Bias: When the training labels themselves were biased 🏷️",
+        subtitle: "Example: If past performance reviews were unfair to certain groups."
+    },
+    {
+        text: "Intersectional Bias: When people with multiple marginalized identities are underrepresented 👥",
+        subtitle: "Example: Few examples of women of color in leadership roles."
+    },
+    {
+        text: "Algorithmic Amplification: When multiple biases work together to create unfair outcomes 🔄",
+        subtitle: "Example: Location + gender + education biases all favoring the same group."
+    },
+    {
+        text: "Why does this matter? Biased AI can harm real people's careers and lives. ⚖️",
+        subtitle: "Learning to spot bias helps us build fairer AI systems!"
+    },
+    {
+        text: "Ready to become a bias detective? You need 4 out of 5 correct to pass! 🔍",
+        subtitle: "Let's make AI hiring more fair for everyone!"
+    }
+];
+
+// Quiz questions for Level 1 promotion (unchanged)
 const quizQuestions = [
     {
         question: "What happens when AI temperature is set too HIGH (like 0.9-1.0)?",
@@ -107,7 +163,7 @@ let currentTutorialStep = 0;
 let currentQuizQuestion = 0;
 let quizScore = 0;
 
-// Messages for phone intro
+// Messages for phone intro (unchanged)
 const introMessages = [
     "Hey bud! Welcome to your first day at Cozy Corner Co! 😄",
     "We know how excited you must be to work in the EXTREMELY competitive furniture sales field",
@@ -163,10 +219,22 @@ function setupEventListeners() {
         startInternBtn.addEventListener('click', startInternLevel);
     }
     
+    // NEW: Start HR button
+    const startHRBtn = document.getElementById('startHRBtn');
+    if (startHRBtn) {
+        startHRBtn.addEventListener('click', startHRLevel);
+    }
+    
     // Tutorial screen click handler
     const tutorialScreen = document.getElementById('temperatureTutorial');
     if (tutorialScreen) {
         tutorialScreen.addEventListener('click', advanceTutorial);
+    }
+    
+    // NEW: Bias tutorial screen click handler
+    const biasTutorialScreen = document.getElementById('biasTutorial');
+    if (biasTutorialScreen) {
+        biasTutorialScreen.addEventListener('click', advanceBiasTutorial);
     }
     
     // Back button
@@ -181,14 +249,14 @@ function setupEventListeners() {
         officeCat.addEventListener('click', showHint);
     }
     
-    // Temperature slider
+    // Temperature slider (Level 1)
     const tempSlider = document.getElementById('temperatureSlider');
     if (tempSlider) {
         tempSlider.addEventListener('input', updateTemperatureDisplay);
         tempSlider.addEventListener('input', showLivePreview);
     }
     
-    // Submit button
+    // Submit button (Level 1)
     const submitBtn = document.getElementById('submitResponseBtn');
     if (submitBtn) {
         submitBtn.addEventListener('click', handleSubmit);
@@ -198,6 +266,12 @@ function setupEventListeners() {
     const nextCustomerBtn = document.getElementById('nextCustomerBtn');
     if (nextCustomerBtn) {
         nextCustomerBtn.addEventListener('click', nextCustomer);
+    }
+    
+    // NEW: Bias round feedback button
+    const nextBiasBtn = document.getElementById('nextBiasBtn');
+    if (nextBiasBtn) {
+        nextBiasBtn.addEventListener('click', nextBiasRound);
     }
 }
 
@@ -216,18 +290,95 @@ function showScreen(screenId) {
         // Initialize screen-specific content
         if (screenId === 'gameLevel') {
             initializeGameLevel();
+        } else if (screenId === 'biasLevel') {
+            initializeBiasLevel();
         } else if (screenId === 'temperatureTutorial') {
             initializeTutorial();
+        } else if (screenId === 'biasTutorial') {
+            initializeBiasTutorial();
         }
     } else {
         console.error(`Screen not found: ${screenId}`);
     }
 }
 
+// Level 1 functions (unchanged)
 function initializeTutorial() {
     currentTutorialStep = 0;
     createProgressDots();
     updateTutorialStep();
+}
+
+// NEW: Level 2 tutorial functions
+function initializeBiasTutorial() {
+    currentTutorialStep = 0;
+    createBiasProgressDots();
+    updateBiasTutorialStep();
+}
+
+function createBiasProgressDots() {
+    const progressContainer = document.querySelector('#biasTutorial .progress-dots');
+    if (!progressContainer) return;
+    
+    progressContainer.innerHTML = '';
+    for (let i = 0; i < biasTutorialSteps.length; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot';
+        if (i === 0) dot.classList.add('active');
+        progressContainer.appendChild(dot);
+    }
+}
+
+function updateBiasTutorialStep() {
+    const bubble = document.getElementById('biasTutorialBubble');
+    const startBtn = document.getElementById('startHRBtn');
+    
+    if (!bubble || currentTutorialStep >= biasTutorialSteps.length) {
+        // Tutorial complete, show start button
+        if (startBtn) {
+            startBtn.classList.remove('hidden');
+            bubble.innerHTML = `
+                <div class="tutorial-step">
+                    <h2>Perfect! You're ready to detect AI bias! 🎓</h2>
+                    <p><em>Click the button below to start the bias detection challenges!</em></p>
+                </div>
+                <div class="tutorial-progress">
+                    <div class="progress-dots">
+                        ${Array.from({length: biasTutorialSteps.length}, (_, i) => 
+                            `<div class="progress-dot active"></div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        return;
+    }
+    
+    const step = biasTutorialSteps[currentTutorialStep];
+    
+    bubble.innerHTML = `
+        <div class="tutorial-step" style="animation: fadeIn 0.5s ease-in;">
+            <h2>${step.text}</h2>
+            <p><em>${step.subtitle}</em></p>
+        </div>
+        <div class="tutorial-progress">
+            <div class="progress-dots">
+                ${Array.from({length: biasTutorialSteps.length}, (_, i) => 
+                    `<div class="progress-dot ${i <= currentTutorialStep ? 'active' : ''}"></div>`
+                ).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function advanceBiasTutorial(event) {
+    // Don't advance if clicking the start button
+    if (event.target.closest('#startHRBtn')) return;
+    
+    if (currentTutorialStep < biasTutorialSteps.length) {
+        currentTutorialStep++;
+        updateBiasTutorialStep();
+    }
 }
 
 function createProgressDots() {
@@ -412,10 +563,15 @@ function startMessages() {
     
     showNextMessage();
 }
+
 function startLevel(levelNumber) {
+    gameState.currentLevel = levelNumber;
     if (levelNumber === 1) {
         // Go to the AI concept explanation for this level (Temperature)
         showScreen('temperatureTutorial');
+    } else if (levelNumber === 2) {
+        // Go to the AI bias explanation
+        showScreen('biasTutorial');
     }
 }
 
@@ -424,9 +580,415 @@ function startInternLevel() {
     gameState.score = 0;
     gameState.attempt = 1;
     gameState.completedCustomers = [];
+    gameState.currentLevel = 1;
     showScreen('gameLevel');
 }
 
+// NEW: Start Level 2 - HR Department
+function startHRLevel() {
+    gameState.currentBiasRound = 0;
+    gameState.biasScore = 0;
+    gameState.currentLevel = 2;
+    showScreen('biasLevel');
+}
+
+// NEW: Initialize Level 2 - Bias Detection
+function initializeBiasLevel() {
+    console.log('Initializing bias detection level...');
+    loadCurrentBiasRound();
+    updateBiasCatHint();
+    updateBiasScoreDisplay();
+}
+
+// NEW: Load current bias detection round
+function loadCurrentBiasRound() {
+    console.log('🔍 Loading bias round...', gameState.currentBiasRound);
+    
+    if (!BIAS_DATA) {
+        console.error('❌ BIAS_DATA is undefined!');
+        alert('BIAS_DATA not loaded! Check if biasData.js is included in your HTML.');
+        return;
+    }
+    
+    if (!BIAS_DATA.rounds) {
+        console.error('❌ BIAS_DATA.rounds is undefined!');
+        console.log('📊 BIAS_DATA structure:', BIAS_DATA);
+        return;
+    }
+    
+    console.log('📊 Available rounds:', BIAS_DATA.rounds.length);
+    console.log('📊 Current round index:', gameState.currentBiasRound);
+    
+    const round = BIAS_DATA.rounds[gameState.currentBiasRound];
+    if (!round) {
+        console.log('All bias rounds completed or round not found');
+        completeBiasLevel();
+        return;
+    }
+    
+    console.log('🎯 Loading round:', round);
+    console.log(`✅ Round title: ${round.title}`);
+    console.log(`✅ Candidates:`, round.candidates);
+    
+    // Update round info
+    const roundTitle = document.getElementById('biasRoundTitle');
+    const roundNumber = document.getElementById('biasRoundNumber');
+    const scenario = document.getElementById('biasScenario');
+    
+    if (roundTitle) {
+        roundTitle.textContent = round.title;
+        console.log('✅ Set round title');
+    } else {
+        console.error('❌ biasRoundTitle element not found');
+    }
+    
+    if (roundNumber) {
+        roundNumber.textContent = `Round ${gameState.currentBiasRound + 1} of 5`;
+        console.log('✅ Set round number');
+    } else {
+        console.error('❌ biasRoundNumber element not found');
+    }
+    
+    if (scenario) {
+        scenario.textContent = round.scenario;
+        console.log('✅ Set scenario');
+    } else {
+        console.error('❌ biasScenario element not found');
+    }
+    
+    // Load candidates
+    const candidate1 = document.getElementById('candidate1');
+    const candidate2 = document.getElementById('candidate2');
+    
+    if (!candidate1 || !candidate2) {
+        console.error('❌ Candidate elements not found!');
+        return;
+    }
+    
+    if (candidate1 && round.candidates && round.candidates[0]) {
+        const c1 = round.candidates[0];
+        console.log('✅ Loading candidate 1:', c1);
+        candidate1.innerHTML = `
+            <div class="candidate-header">
+                <img src="assets/images/characters/${c1.image}" alt="${c1.name}" class="candidate-image" onerror="console.error('Image failed to load: ${c1.image}')">
+                <div class="candidate-info">
+                    <div class="candidate-name">${c1.name}</div>
+                    <div class="candidate-details">${c1.description}</div>
+                </div>
+            </div>
+            <button class="candidate-btn pink-btn" onclick="selectCandidate(0)">
+                AI Picked This Candidate
+            </button>
+        `;
+    }
+    
+    if (candidate2 && round.candidates && round.candidates[1]) {
+        const c2 = round.candidates[1];
+        console.log('✅ Loading candidate 2:', c2);
+        candidate2.innerHTML = `
+            <div class="candidate-header">
+                <img src="assets/images/characters/${c2.image}" alt="${c2.name}" class="candidate-image" onerror="console.error('Image failed to load: ${c2.image}')">
+                <div class="candidate-info">
+                    <div class="candidate-name">${c2.name}</div>
+                    <div class="candidate-details">${c2.description}</div>
+                </div>
+            </div>
+            <button class="candidate-btn pink-btn" onclick="selectCandidate(1)">
+                AI Picked This Candidate
+            </button>
+        `;
+    }
+    
+    // Show hint from cat
+    setTimeout(() => {
+        const hintBox = document.getElementById('catHintBox');
+        const hintContent = document.getElementById('hintContent');
+        if (hintBox && hintContent) {
+            hintContent.textContent = round.hint || "Think about what biases the AI might have learned from past data!";
+            hintBox.classList.remove('hidden');
+            
+            setTimeout(() => {
+                hintBox.classList.add('hidden');
+            }, 5000); // Show for 5 seconds instead of 4
+        }
+    }, 1500); // Wait a bit longer before showing hint
+}
+
+// NEW: Handle candidate selection
+window.selectCandidate = function(candidateIndex) {
+    if (!BIAS_DATA || !BIAS_DATA.rounds) return;
+    
+    const round = BIAS_DATA.rounds[gameState.currentBiasRound];
+    if (!round) return;
+    
+    const isCorrect = candidateIndex === round.aiChoice;
+    
+    if (isCorrect) {
+        gameState.biasScore++;
+    }
+    
+    updateBiasScoreDisplay();
+    showBiasFeedbackModal(round, candidateIndex, isCorrect);
+};
+
+// NEW: Show bias feedback modal
+function showBiasFeedbackModal(round, selectedIndex, isCorrect) {
+    const modal = document.getElementById('biasFeedbackModal');
+    const feedbackTitle = document.getElementById('biasFeedbackTitle');
+    const feedbackResult = document.getElementById('biasFeedbackResult');
+    const biasExplanation = document.getElementById('biasExplanation');
+    const catBiasFeedback = document.getElementById('catBiasFeedback');
+    
+    if (!modal) return;
+    
+    const selectedCandidate = round.candidates[selectedIndex];
+    const aiCandidate = round.candidates[round.aiChoice];
+    
+    if (feedbackTitle) {
+        feedbackTitle.textContent = isCorrect ? "Correct! 🎯" : "Not quite! 🤔";
+    }
+    
+    if (feedbackResult) {
+        if (isCorrect) {
+            feedbackResult.innerHTML = `You correctly identified that the AI picked <strong>${aiCandidate.name}</strong>!`;
+        } else {
+            feedbackResult.innerHTML = `The AI actually picked <strong>${aiCandidate.name}</strong>, not ${selectedCandidate.name}.`;
+        }
+    }
+    
+    if (biasExplanation) {
+        biasExplanation.innerHTML = `
+            <h4>${round.biasType}</h4>
+            <p>${round.explanation}</p>
+        `;
+    }
+    
+    if (catBiasFeedback) {
+        const messages = isCorrect ? [
+            "Meow! You're getting good at spotting bias patterns!",
+            "Great job detecting that bias! You're helping make AI fairer!",
+            "Purrfect! You spotted the bias like a true detective!"
+        ] : [
+            "Don't worry! Bias detection takes practice. You're learning!",
+            "Meow! Each mistake teaches us something about AI fairness!",
+            "Keep trying! Understanding bias helps everyone!"
+        ];
+        catBiasFeedback.textContent = `"${messages[Math.floor(Math.random() * messages.length)]}"`;
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+// NEW: Move to next bias round
+function nextBiasRound() {
+    const modal = document.getElementById('biasFeedbackModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    
+    gameState.currentBiasRound++;
+    
+    if (gameState.currentBiasRound >= 5) {
+        completeBiasLevel();
+    } else {
+        loadCurrentBiasRound();
+    }
+}
+
+// NEW: Update bias score display
+function updateBiasScoreDisplay() {
+    const scoreElement = document.getElementById('currentBiasScore');
+    const progressBar = document.getElementById('biasProgressBar');
+    
+    if (scoreElement) {
+        scoreElement.textContent = gameState.biasScore;
+    }
+    
+    if (progressBar) {
+        const percentage = (gameState.biasScore / 5) * 100;
+        progressBar.style.width = percentage + '%';
+    }
+}
+
+// NEW: Complete bias level
+function completeBiasLevel() {
+    const passed = gameState.biasScore >= 4;
+    
+    if (passed) {
+        // Show promotion quiz for bias level
+        showBiasPromotionQuiz();
+    } else {
+        // Show retry modal
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="feedback-header">
+                    <img src="assets/images/cats/office-cat-awake.png" alt="Office Cat" class="feedback-cat">
+                    <h3>Good Try!</h3>
+                </div>
+                <div class="points-earned">You got ${gameState.biasScore} out of 5 correct!</div>
+                <div class="feedback-explanation">
+                    You need 4 out of 5 correct to unlock the quiz. Bias detection is tricky - want to try again?
+                </div>
+                <div class="cat-feedback">
+                    "Don't give up! Every bias you learn to spot makes AI better for everyone!"
+                </div>
+                <button class="next-btn pink-btn" onclick="this.parentElement.parentElement.remove(); startHRLevel();">
+                    <span>Try Again</span>
+                    <span>🔄</span>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+}
+
+// NEW: Show bias promotion quiz
+function showBiasPromotionQuiz() {
+    currentQuizQuestion = 0;
+    quizScore = 0;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'biasPromotionQuiz';
+    modal.innerHTML = `
+        <div class="modal-content quiz-modal">
+            <div class="quiz-header">
+                <h3>HR Department Final Exam</h3>
+                <p>Show your understanding of AI bias to unlock the next level:</p>
+            </div>
+            <div class="quiz-content" id="biasQuizContent">
+                <!-- Quiz question will go here -->
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    showBiasQuizQuestion();
+}
+
+// NEW: Show bias quiz question
+function showBiasQuizQuestion() {
+    const quizContent = document.getElementById('biasQuizContent');
+    if (!quizContent || !BIAS_DATA.quizQuestions || currentQuizQuestion >= BIAS_DATA.quizQuestions.length) {
+        completeBiasQuiz();
+        return;
+    }
+    
+    const question = BIAS_DATA.quizQuestions[currentQuizQuestion];
+    quizContent.innerHTML = `
+        <div class="quiz-question">
+            <div class="question-header">
+                <span class="question-number">Question ${currentQuizQuestion + 1} of ${BIAS_DATA.quizQuestions.length}</span>
+            </div>
+            <p class="question-text">${question.question}</p>
+            <div class="quiz-options">
+                ${question.options.map((option, index) => `
+                    <button class="quiz-option" onclick="selectBiasAnswer(${index})">
+                        ${String.fromCharCode(65 + index)}. ${option}
+                    </button>
+                `).join('')}
+            </div>
+            <div class="quiz-feedback hidden" id="biasQuizFeedback">
+                <!-- Feedback will appear here -->
+            </div>
+        </div>
+    `;
+}
+
+// NEW: Complete bias quiz
+function completeBiasQuiz() {
+    const modal = document.getElementById('biasPromotionQuiz');
+    if (!modal) return;
+    
+    const passed = quizScore >= 2; // Need to get at least 2/3 correct
+    
+    modal.innerHTML = `
+        <div class="modal-content quiz-results-modal">
+            <div class="quiz-results-header">
+                <h3>${passed ? 'Congratulations!' : 'Almost There!'}</h3>
+            </div>
+            <div class="quiz-results">
+                <p class="score-display">You got <strong>${quizScore} out of ${BIAS_DATA.quizQuestions.length}</strong> questions correct!</p>
+                ${passed ? 
+                    '<p class="success-message">You\'ve mastered AI bias detection and unlocked the next level!</p>' :
+                    '<p class="retry-message">You need at least 2 correct answers to unlock the next level. Want to try the quiz again?</p>'
+                }
+            </div>
+            <div class="quiz-actions">
+                ${passed ? 
+                    '<button class="primary-btn pink-btn" onclick="this.parentElement.parentElement.parentElement.remove(); showScreen(\'levelSelection\'); unlockLevel(3);">Continue to Levels</button>' :
+                    `<div class="retry-buttons">
+                        <button class="primary-btn pink-btn" onclick="retryBiasQuiz();">Try Quiz Again</button>
+                        <button class="secondary-btn" onclick="this.parentElement.parentElement.parentElement.parentElement.remove(); showScreen('levelSelection');">Back to Levels</button>
+                    </div>`
+                }
+            </div>
+        </div>
+    `;
+}
+
+// NEW: Global functions for bias quiz
+window.selectBiasAnswer = function(selectedIndex) {
+    if (!BIAS_DATA.quizQuestions) return;
+    
+    const question = BIAS_DATA.quizQuestions[currentQuizQuestion];
+    const feedback = document.getElementById('biasQuizFeedback');
+    const options = document.querySelectorAll('.quiz-option');
+    
+    // Disable all options
+    options.forEach(option => option.disabled = true);
+    
+    if (selectedIndex === question.correct) {
+        // Correct answer
+        options[selectedIndex].style.backgroundColor = '#4CAF50';
+        options[selectedIndex].style.color = 'white';
+        quizScore++;
+        
+        feedback.innerHTML = `
+            <div class="correct-feedback">
+                <strong>✅ Correct!</strong>
+                <p>${question.explanation}</p>
+                <button onclick="nextBiasQuizQuestion()" class="next-quiz-btn pink-btn">Next Question</button>
+            </div>
+        `;
+    } else {
+        // Wrong answer
+        options[selectedIndex].style.backgroundColor = '#f44336';
+        options[selectedIndex].style.color = 'white';
+        options[question.correct].style.backgroundColor = '#4CAF50';
+        options[question.correct].style.color = 'white';
+        
+        feedback.innerHTML = `
+            <div class="wrong-feedback">
+                <strong>❌ Not quite right.</strong>
+                <p>${question.explanation}</p>
+                <button onclick="nextBiasQuizQuestion()" class="next-quiz-btn pink-btn">Next Question</button>
+            </div>
+        `;
+    }
+    
+    feedback.classList.remove('hidden');
+};
+
+window.nextBiasQuizQuestion = function() {
+    currentQuizQuestion++;
+    showBiasQuizQuestion();
+};
+
+window.retryBiasQuiz = function() {
+    const modal = document.getElementById('biasPromotionQuiz');
+    if (modal) {
+        modal.remove();
+    }
+    currentQuizQuestion = 0;
+    quizScore = 0;
+    showBiasPromotionQuiz();
+};
+
+// Level 1 functions (unchanged from here down)
 function initializeGameLevel() {
     console.log('Initializing game level...');
     loadCurrentCustomer();
@@ -484,7 +1046,10 @@ function loadCurrentCustomer() {
     
     if (customerName) customerName.textContent = customer.name;
     if (customerType) customerType.textContent = customer.type;
-    if (customerAvatar) customerAvatar.textContent = customer.avatar;
+    if (customerAvatar) {
+    customerAvatar.src = `assets/images/levelonecharacters/${customer.avatar}`;
+    customerAvatar.alt = `${customer.name} Avatar`;
+}
     if (customerMessageContent) customerMessageContent.textContent = customer.message;
     
     // Reset AI response
@@ -533,6 +1098,20 @@ function updateCatHint() {
     }
 }
 
+function updateBiasCatHint() {
+    if (gameState.currentScreen !== 'biasLevel') return;
+    
+    if (!BIAS_DATA || !BIAS_DATA.rounds) return;
+    
+    const round = BIAS_DATA.rounds[gameState.currentBiasRound];
+    if (!round) return;
+    
+    // Update the hint content
+    const hintContent = document.getElementById('hintContent');
+    if (hintContent) {
+        hintContent.textContent = round.hint || "Think about what biases the AI might have learned from past data!";
+    }
+}
 
 
 function showHint() {
@@ -540,9 +1119,15 @@ function showHint() {
     const hintBox = document.getElementById('catHintBox');
     
     if (catImage && hintBox) {
-        // Change to awake cat
+        // Update hint content based on current level
+        if (gameState.currentScreen === 'biasLevel') {
+            updateBiasCatHint();
+        }
+        
+        // Change to awake cat with appropriate glow color
         catImage.src = 'assets/images/cats/office-cat-awake.png';
-        catImage.style.filter = 'drop-shadow(0 0 15px rgba(255, 149, 0, 0.6))';
+        const glowColor = gameState.currentLevel === 2 ? 'rgba(255, 107, 157, 0.6)' : 'rgba(255, 149, 0, 0.6)';
+        catImage.style.filter = `drop-shadow(0 0 15px ${glowColor})`;
         
         // Show hint box
         hintBox.classList.remove('hidden');
@@ -693,7 +1278,6 @@ function completeLevel() {
         showCompletionModal();
     }
 }
-
 
 function showPromotionQuiz() {
     currentQuizQuestion = 0;
@@ -864,9 +1448,33 @@ function showCompletionModal() {
 }
 
 function unlockLevel(levelNumber) {
-    // This would unlock the next level
-    // For now, just log it since we only have level 1
+    // Unlock the specified level
+    if (!gameState.unlockedLevels.includes(levelNumber)) {
+        gameState.unlockedLevels.push(levelNumber);
+    }
+    
+    // Update the level selection UI
+    updateLevelSelection();
+    
     console.log(`Level ${levelNumber} unlocked!`);
+}
+
+function updateLevelSelection() {
+    // Update level 2 card if it exists
+    const level2Card = document.getElementById('level2Card');
+    if (level2Card && gameState.unlockedLevels.includes(2)) {
+        level2Card.className = 'level-card available';
+        const level2Btn = level2Card.querySelector('.level-btn');
+        if (level2Btn) {
+            level2Btn.className = 'level-btn pink-btn';
+            level2Btn.disabled = false;
+            level2Btn.innerHTML = `
+                <span>Start Training</span>
+                <span class="arrow">→</span>
+            `;
+            level2Btn.onclick = () => startLevel(2);
+        }
+    }
 }
 
 // Utility function to hide elements
